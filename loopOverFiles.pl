@@ -86,6 +86,12 @@ sub fixHref {
       # /some/path/file.ext   is good
       # /some/path/path/      is good
       # /some/some.path/file  is wrong (no / at and and no . after last /)
+  my $anchor = "";
+  ($href, $anchor) = split (/#/, $href);
+
+  if (length $anchor > 0) {
+    $anchor = "#" . $anchor;
+  }
 
   # get the last path segment (a/b/  --> b/ )
   my $lastSeg = (split /(?<=\/)/, $href)[-1];
@@ -96,12 +102,12 @@ sub fixHref {
 
   # if ends with / no need to do anything
   if ($lastSeg =~ m/\/$/) {
-    return $href;
+    return $href . $anchor;
   }
 
   # if ends with 3 characters, assume .gif and suchlike.
   if ($lastSeg =~ m/\.\w{3}$/) {
-    return $href;
+    return $href . $anchor;
   }
 
   my @extensions = ( "html", "jpeg", "mpga", "mp4a", "mxml", "sgml", "xhtml" );
@@ -109,10 +115,10 @@ sub fixHref {
   # if ends with 4 or more characters, look the extension up in the allow list.
   if (my ($ext) = $lastSeg =~ m/\.(\w{4,})$/) {
     if (grep { $_ eq $ext } @extensions) {
-      return $href;
+      return $href . $anchor;
     }
   }
 
-  return $href . "/";
+  return $href . "/" . $anchor;
 }
 
